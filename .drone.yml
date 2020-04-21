@@ -7,10 +7,9 @@ platform:
   arch: amd64
 
 steps:
-- name: test & build
+- name: build
   image: golang:1.14
   commands:
-  - go test ./...
   - go build -o drone-ecr-registry
   environment:
     CGO_ENABLED: 0
