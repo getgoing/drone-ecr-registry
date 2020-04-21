@@ -1,4 +1,4 @@
-module github.com/teryaev/drone-ecr/registry
+module github.com/teryaev/drone-ecr-registry
 
 go 1.14
 

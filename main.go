@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/drone/drone-go/plugin/registry"
-	"github.com/teryaev/drone-ecr/registry/plugin"
+	"github.com/teryaev/drone-ecr-registry/plugin"
 
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/kelseyhightower/envconfig"
