@@ -25,7 +25,7 @@ type spec struct {
 	Debug  bool   `envconfig:"DRONE_DEBUG"`
 	Secret string `envconfig:"DRONE_SECRET"`
 
-	registryID string `envconfig:"DRONE_REGISTRY_ID"`
+	registryID string `envconfig:"REGISTRY_ID"`
 }
 
 func main() {
