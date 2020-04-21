@@ -21,10 +21,9 @@ import (
 
 // spec provides the plugin settings.
 type spec struct {
-	Bind   string `envconfig:"DRONE_BIND"`
-	Debug  bool   `envconfig:"DRONE_DEBUG"`
-	Secret string `envconfig:"DRONE_SECRET"`
-
+	Bind       string `envconfig:"DRONE_BIND"`
+	Debug      bool   `envconfig:"DRONE_DEBUG"`
+	Secret     string `envconfig:"DRONE_SECRET"`
 	registryID string `envconfig:"DRONE_REGISTRY_ID"`
 }
 
