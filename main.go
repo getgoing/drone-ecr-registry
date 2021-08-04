@@ -21,10 +21,22 @@ import (
 
 // spec provides the plugin settings.
 type spec struct {
-	Bind       string `envconfig:"DRONE_BIND"`
-	Debug      bool   `envconfig:"DRONE_DEBUG"`
-	Secret     string `envconfig:"DRONE_SECRET"`
-	RegistryID string `envconfig:"ECR_REGISTRY_ID"`
+	Bind        string   `envconfig:"DRONE_BIND"`
+	Debug       bool     `envconfig:"DRONE_DEBUG"`
+	Secret      string   `envconfig:"DRONE_SECRET"`
+	RegistryID  string   `envconfig:"ECR_REGISTRY_ID"`
+	RegistryIDs []string `envconfig:"ECR_REGISTRY_IDS"`
+}
+
+//GetRegistries returns the registries in a backwards compatible manner
+//such that ECR_REGISTRY_ID takes precendence over ECR_REGISTRY_IDS
+func (s *spec) GetRegistries() (reg []string) {
+	if s.RegistryID != "" {
+		reg = []string{s.RegistryID}
+	} else {
+		reg = s.RegistryIDs
+	}
+	return
 }
 
 func main() {
@@ -66,7 +78,7 @@ func main() {
 		spec.Secret,
 		plugin.New(
 			ecr.New(cfg),
-			spec.RegistryID,
+			spec.GetRegistries(),
 		),
 		logrus.StandardLogger(),
 	)
