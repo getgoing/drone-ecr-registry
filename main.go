@@ -72,7 +72,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	logrus.Debugf("Going to retrieve creds for %s ECR repo", spec.RegistryID)
+	logrus.Debugf("configured registries for ECR: %v", spec.GetRegistries())
 
 	handler := registry.Handler(
 		spec.Secret,

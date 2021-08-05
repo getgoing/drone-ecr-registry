@@ -15,6 +15,7 @@ func TestPluginTestSuite(t *testing.T) {
 	suite.Run(t, new(PluginTestSuite))
 }
 
+//TODO write a couple of tests...
 func (suite *PluginTestSuite) TestGetRegistries() {
 	t := suite.T()
 	assert.True(t, true)

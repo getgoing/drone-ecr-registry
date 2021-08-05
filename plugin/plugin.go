@@ -6,12 +6,14 @@ package plugin
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/registry"
-	"github.com/hashicorp/go-multierror"
+	"github.com/sirupsen/logrus"
 )
 
 // New returns a new registry plugin.
@@ -28,36 +30,35 @@ type plugin struct {
 }
 
 func (p *plugin) List(ctx context.Context, req *registry.Request) ([]*drone.Registry, error) {
-	var errs error
 
-	errs = multierror.Append(errs, fmt.Errorf("an eror"))
+	resp, err := p.client.GetAuthorizationTokenRequest(
+		&ecr.GetAuthorizationTokenInput{
+			RegistryIds: p.registries,
+		},
+	).Send(context.TODO())
 
-	// resp, err := p.client.GetAuthorizationTokenRequest(
-	// 	&ecr.GetAuthorizationTokenInput{
-	// 		RegistryIds: []string{p.registryID},
-	// 	},
-	// ).Send(context.TODO())
+	if err != nil {
+		result := fmt.Errorf("couldn't retrieve auth token: %w", err)
+		logrus.Error(result)
+		return nil, result
+	}
 
-	// if err != nil {
-	// 	return nil, fmt.Errorf("Couldn't retrieve auth token: %s", err.Error())
-	// }
+	credentials := make([]*drone.Registry, 0)
+	for _, authData := range resp.AuthorizationData {
+		token := authData.AuthorizationToken
+		if decodedToken, err := base64.StdEncoding.DecodeString(*token); err != nil {
+			result := fmt.Errorf("couldn't decode auth token: %w", err)
+			logrus.Error(result)
+			return nil, result
+		} else {
+			creds := strings.Split(string(decodedToken), ":")
+			credentials = append(credentials, &drone.Registry{
+				Address:  *authData.ProxyEndpoint,
+				Username: creds[0],
+				Password: creds[1],
+			})
+		}
+	}
 
-	// token := resp.AuthorizationData[0].AuthorizationToken
-	// decodedToken, err := base64.StdEncoding.DecodeString(*token)
-
-	// if err != nil {
-	// 	return nil, fmt.Errorf("Couldn't base64decode auth token: %s", err.Error())
-	// }
-
-	// creds := strings.Split(string(decodedToken), ":")
-
-	// credentials := []*drone.Registry{
-	// 	{
-	// 		Address:  *resp.AuthorizationData[0].ProxyEndpoint,
-	// 		Username: creds[0],
-	// 		Password: creds[1],
-	// 	},
-	// }
-
-	return make([]*drone.Registry, 0), errs
+	return credentials, nil
 }
