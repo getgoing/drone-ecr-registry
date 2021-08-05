@@ -60,7 +60,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	logrus.Debugf("configured registries for ECR: %v", spec.RegistryIDs)
+	logrus.Infof("configured registries for ECR: %#v", spec.RegistryIDs)
 
 	handler := registry.Handler(
 		spec.Secret,

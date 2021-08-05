@@ -38,7 +38,7 @@ func (p *plugin) List(ctx context.Context, req *registry.Request) ([]*drone.Regi
 	).Send(context.TODO())
 
 	if err != nil {
-		result := fmt.Errorf("couldn't retrieve auth token: %w", err)
+		result := fmt.Errorf("couldn't retrieve auth token from registries %#v: %w", p.registries, err)
 		logrus.Error(result)
 		return nil, result
 	}
@@ -47,7 +47,7 @@ func (p *plugin) List(ctx context.Context, req *registry.Request) ([]*drone.Regi
 	for _, authData := range resp.AuthorizationData {
 		token := authData.AuthorizationToken
 		if decodedToken, err := base64.StdEncoding.DecodeString(*token); err != nil {
-			result := fmt.Errorf("couldn't decode auth token: %w", err)
+			result := fmt.Errorf("couldn't decode auth token for %s: %w", *authData.ProxyEndpoint, err)
 			logrus.Error(result)
 			return nil, result
 		} else {
