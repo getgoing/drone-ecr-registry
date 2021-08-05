@@ -13,48 +13,51 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/registry"
+	"github.com/sirupsen/logrus"
 )
 
 // New returns a new registry plugin.
-func New(client *ecr.Client, registryID string) registry.Plugin {
+func New(client *ecr.Client, registries []string) registry.Plugin {
 	return &plugin{
-		client:     client,
-		registryID: registryID,
+		client,
+		registries,
 	}
 }
 
 type plugin struct {
 	client     *ecr.Client
-	registryID string
+	registries []string
 }
 
 func (p *plugin) List(ctx context.Context, req *registry.Request) ([]*drone.Registry, error) {
 
 	resp, err := p.client.GetAuthorizationTokenRequest(
 		&ecr.GetAuthorizationTokenInput{
-			RegistryIds: []string{p.registryID},
+			RegistryIds: p.registries,
 		},
 	).Send(context.TODO())
 
 	if err != nil {
-		return nil, fmt.Errorf("Couldn't retrieve auth token: %s", err.Error())
+		result := fmt.Errorf("couldn't retrieve auth token: %w", err)
+		logrus.Error(result)
+		return nil, result
 	}
 
-	token := resp.AuthorizationData[0].AuthorizationToken
-	decodedToken, err := base64.StdEncoding.DecodeString(*token)
-
-	if err != nil {
-		return nil, fmt.Errorf("Couldn't base64decode auth token: %s", err.Error())
-	}
-
-	creds := strings.Split(string(decodedToken), ":")
-
-	credentials := []*drone.Registry{
-		{
-			Address:  *resp.AuthorizationData[0].ProxyEndpoint,
-			Username: creds[0],
-			Password: creds[1],
-		},
+	credentials := make([]*drone.Registry, 0)
+	for _, authData := range resp.AuthorizationData {
+		token := authData.AuthorizationToken
+		if decodedToken, err := base64.StdEncoding.DecodeString(*token); err != nil {
+			result := fmt.Errorf("couldn't decode auth token: %w", err)
+			logrus.Error(result)
+			return nil, result
+		} else {
+			creds := strings.Split(string(decodedToken), ":")
+			credentials = append(credentials, &drone.Registry{
+				Address:  *authData.ProxyEndpoint,
+				Username: creds[0],
+				Password: creds[1],
+			})
+		}
 	}
 
 	return credentials, nil

@@ -21,10 +21,10 @@ import (
 
 // spec provides the plugin settings.
 type spec struct {
-	Bind       string `envconfig:"DRONE_BIND"`
-	Debug      bool   `envconfig:"DRONE_DEBUG"`
-	Secret     string `envconfig:"DRONE_SECRET"`
-	RegistryID string `envconfig:"ECR_REGISTRY_ID"`
+	Bind        string   `envconfig:"DRONE_BIND"`
+	Debug       bool     `envconfig:"DRONE_DEBUG"`
+	Secret      string   `envconfig:"DRONE_SECRET"`
+	RegistryIDs []string `envconfig:"ECR_REGISTRY_IDS"`
 }
 
 func main() {
@@ -60,13 +60,13 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	logrus.Debugf("Going to retrieve creds for %s ECR repo", spec.RegistryID)
+	logrus.Debugf("configured registries for ECR: %v", spec.RegistryIDs)
 
 	handler := registry.Handler(
 		spec.Secret,
 		plugin.New(
 			ecr.New(cfg),
-			spec.RegistryID,
+			spec.RegistryIDs,
 		),
 		logrus.StandardLogger(),
 	)

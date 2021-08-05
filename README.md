@@ -16,6 +16,7 @@ $ docker run -d \
   --publish=3000:3000 \
   --env=DRONE_DEBUG=true \
   --env=DRONE_SECRET=bea26a2221fd8090ea38720fc445eca6 \
+  --env=ECR_REGISTRY_IDS="awsAccountId1,awsAccountId2,..." \
   --restart=always \
   --name=credentials reptiloid666/drone-ecr-registry
 ```
