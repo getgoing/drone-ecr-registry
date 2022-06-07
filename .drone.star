@@ -30,7 +30,7 @@ def build_pipeline(ctx):
             ),
         ],
         "trigger": {
-            "branch": ["main"],
+            "branch": ["master"],
             "event": ["push"],
         },
     }
