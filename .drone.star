@@ -29,9 +29,6 @@ def build_pipeline(ctx):
                 {"from_secret": "drone_peopleforce_api_key"},
             ),
         ],
-        "node": {
-            "aws_account": "bcd-infra",
-        },
         "trigger": {
             "branch": ["master"],
             "event": ["push"],
