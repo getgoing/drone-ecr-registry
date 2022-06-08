@@ -31,6 +31,12 @@ type plugin struct {
 
 func (p *plugin) List(ctx context.Context, req *registry.Request) ([]*drone.Registry, error) {
 
+	logFields := logrus.Fields{
+		"repo":  req.Repo.Slug,
+		"build": req.Build.Link,
+	}
+	logrus.WithFields(logFields).Debug("plugin serving request")
+
 	resp, err := p.client.GetAuthorizationTokenRequest(
 		&ecr.GetAuthorizationTokenInput{
 			RegistryIds: p.registries,
@@ -38,6 +44,7 @@ func (p *plugin) List(ctx context.Context, req *registry.Request) ([]*drone.Regi
 	).Send(context.TODO())
 
 	if err != nil {
+		logrus.WithFields(logFields).WithError(err).Error("GetAuthorizationTokenRequest failed")
 		result := fmt.Errorf("couldn't retrieve auth token from registries %#v: %w", p.registries, err)
 		logrus.Error(result)
 		return nil, result
@@ -45,12 +52,14 @@ func (p *plugin) List(ctx context.Context, req *registry.Request) ([]*drone.Regi
 
 	credentials := make([]*drone.Registry, 0)
 	for _, authData := range resp.AuthorizationData {
+		logrus.WithFields(logFields).WithError(err).Debugf("processing AuthorizationData for %s", *authData.ProxyEndpoint)
 		token := authData.AuthorizationToken
 		if decodedToken, err := base64.StdEncoding.DecodeString(*token); err != nil {
 			result := fmt.Errorf("couldn't decode auth token for %s: %w", *authData.ProxyEndpoint, err)
-			logrus.Error(result)
+			logrus.WithFields(logFields).WithError(result).Error("decode token failed")
 			return nil, result
 		} else {
+			logrus.WithFields(logFields).Debugf("added credentials for %s", *authData.ProxyEndpoint)
 			creds := strings.Split(string(decodedToken), ":")
 			credentials = append(credentials, &drone.Registry{
 				Address:  *authData.ProxyEndpoint,
