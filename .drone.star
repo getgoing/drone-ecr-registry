@@ -19,7 +19,7 @@ def build_pipeline(ctx):
                 "image": "plugins/ecr",
                 "settings": {
                     "registry": ECR_URL,
-                    "repo": "drone-ecr-registry",
+                    "repo": "drone-plugins/ecr-registry",
                     "dockerfile": "Dockerfile",
                     "custom_dns": "169.254.169.253",
                 },
