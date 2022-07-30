@@ -35,6 +35,7 @@ func main() {
 	}
 
 	if spec.Debug {
+		logrus.Info("enabling debug mode")
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 	if spec.Secret == "" {
