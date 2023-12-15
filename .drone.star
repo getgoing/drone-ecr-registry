@@ -1,5 +1,7 @@
+load("@common//:constants.star", "BCD_INFRA_ECR_URL")
+load("@common//:images.star", "find_image")
 load("@common//:steps.star", "notify_author")
-load("@common//:utils.star", "ECR_URL", "retrieve_parameter")
+load("@common//:utils.star", "retrieve_parameter")
 
 def main(ctx):
     return [
@@ -16,9 +18,9 @@ def build_pipeline(ctx):
             generate_tags_file(ctx),
             {
                 "name": "build and push drone ecs deploy image",
-                "image": "plugins/ecr",
+                "image": find_image("plugins/ecr"),
                 "settings": {
-                    "registry": ECR_URL,
+                    "registry": BCD_INFRA_ECR_URL,
                     "repo": "drone-plugin/ecr-registry",
                     "dockerfile": "Dockerfile",
                     "custom_dns": "169.254.169.253",
@@ -40,7 +42,7 @@ def generate_tags_file(ctx):
 
     return {
         "name": "generate tags file",
-        "image": "alpine:3.11.5",
+        "image": find_image("alpine"),
         "commands": [
             'echo -n "$(cat version),$DRONE_BUILD_NUMBER,latest,{}" > .tags'.format(commit_sha),
         ],
