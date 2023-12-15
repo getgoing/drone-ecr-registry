@@ -1,4 +1,4 @@
-load("@common//:constants.star", "BCD_INFRA_ECR_URL")
+load("@common//:constants.star", "ASB_PROD_ECR_URL")
 load("@common//:images.star", "find_image")
 load("@common//:steps.star", "notify_author")
 load("@common//:utils.star", "retrieve_parameter")
@@ -20,7 +20,7 @@ def build_pipeline(ctx):
                 "name": "build and push drone ecs deploy image",
                 "image": find_image("plugins/ecr"),
                 "settings": {
-                    "registry": BCD_INFRA_ECR_URL,
+                    "registry": ASB_PROD_ECR_URL,
                     "repo": "drone-plugin/ecr-registry",
                     "dockerfile": "Dockerfile",
                     "custom_dns": "169.254.169.253",
