@@ -36,12 +36,12 @@ def build_pipeline(ctx):
         },
     }
 
-def generate_tags_file(ctx):e
+def generate_tags_file(ctx):
     commit_sha = ctx.build.commit[:6]
 
     return {
         "name": "generate tags file",
-        "image": find_image('alpine'),
+        "image": find_image("alpine"),
         "commands": [
             'echo -n "$(cat version),$DRONE_BUILD_NUMBER,latest,{}" > .tags'.format(commit_sha),
         ],
