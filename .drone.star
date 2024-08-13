@@ -67,7 +67,6 @@ def build_and_push(dry_run=False):
         name = 'build docker image (dry-run)'
     else:
         name = 'build and push docker image'
-        dry_run = False
 
     return {
         'name': name,
